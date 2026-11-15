@@ -20,3 +20,22 @@ A small FastAPI service that receives Stripe webhooks and does not lose or doubl
 
 ## Adapt
 Replace the functions in the `HANDLERS` dict in `app.py` with the real sync logic (CRM, accounting, order system).
+
+## Live run (real output)
+
+```
+$ python scripts/send_test_event.py --id evt_demo_1
+200 {"status":"received"}
+
+$ # same event delivered again (Stripe retries do this)
+200 {"status":"duplicate"}
+
+$ # tampered signature
+400 {"detail":"invalid signature"}
+
+$ curl localhost:8000/health
+{"ok":true,"events":{"done":1}}
+
+$ sqlite3 /tmp/live.db "select id,status,amount from orders"
+('cs_demo_1', 'paid', 4900)
+```
